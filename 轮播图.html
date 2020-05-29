@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<link rel="stylesheet" type="text/css" href="../reset.css">
+	<style type="text/css">
+		#LB{
+			width: 222px;
+			height: 424px;
+			margin: 50px auto;
+			overflow: hidden;
+			/*开启定位以便嵌入*/
+			position: relative;
+		}
+		#pic{
+			/*开启定位，以便移动*/
+			position: absolute;
+		}
+		#pic li{
+			float: left;
+			padding: 10px;
+			/*margin: 0 5px;*/
+			background-color: #bfa;
+		}
+	/*	#pic li:first-child{
+			margin-left: 0px;
+		}*/
+		#btn{
+			/*通过定位嵌入，同时防止被移走*/
+			position: absolute;
+			bottom: 5px;
+		}
+		#btn a{
+			float: left;
+			width: 9px;
+			height: 9px;
+			background-color: rgba(51,17,68,0.5);
+			margin: 0 5px;
+		}
+		#btn a:hover{
+			background-color: rgba(255,0,50,0.6);
+		}
+	</style>
+	<script type="text/javascript">
+		window.onload = function() {
+			var pic = document.getElementById("pic");
+			var picList = document.getElementsByTagName("img");
+			var navBtn = document.getElementById("btn");
+			// 动态设定宽，保证横版排列
+			pic.style.width = picList.length * 300 + "px";
+			// 动态居中
+			navBtn.style.left = (LB.offsetWidth - navBtn.offsetWidth) / 2 + "px";
+			// 设定变量，获取超链接对象
+			var imgIndex = 0;
+			var timer;
+			var pArr = document.getElementsByTagName("a");
+			// 超链接显示与图片编号对应
+			aChange();
+			// 点击超链接切换图片
+			for (i = 0; i < pArr.length; i++) {
+				// 做好标记，否则函数内i全是max
+				pArr[i].num = i;
+				pArr[i].onclick = function() {
+					imgIndex = this.num;
+					// 切换效果给予动画，超链接也随之变化
+					moving(pic, "left", 10, -222*imgIndex, picMove);
+					aChange();
+					// 切换后暂停切换，直到回调函数启动切换(重置计时)
+					clearInterval(timer);
+				}
+			}
+			picMove();
+
+			// 超链接变化
+			function aChange() {
+				// 狸猫换太子功能
+				if (imgIndex >= picList.length-1) {
+					imgIndex = 0;
+					pic.style.left = 0;
+				}
+				// 清空其他内联
+				for (i = 0; i < pArr.length; i++) {
+					pArr[i].style.backgroundColor = "";
+				}
+				// 改变内联
+				pArr[imgIndex].style.backgroundColor = "rgba(255,0,50,0.6)";
+			}
+			// 自动轮播
+			function picMove() {
+				timer = setInterval(function() {
+					imgIndex++;
+					imgIndex = imgIndex % picList.length;
+					// 切换移动，条件满足则回调狸猫换太子回到第一张
+					moving(pic, "left", 5, -222*imgIndex, aChange)
+				}, 3000);
+			}
+		}
+
+		// 计时器函数
+		function moving(obj, direct, speed, limit, callback) {
+			// speed judge
+			var nowP = parseInt(getComputedStyle(obj, null)[direct]);
+			if (nowP > limit) {
+				speed = -speed;
+			}
+			clearInterval(obj.timer);
+			obj.timer = setInterval(moveOn, 10);
+			// 移动函数，定时器执行函数
+			function moveOn() {
+				var oldValue = parseInt(getComputedStyle(obj, null)[direct]);
+				switch (true) {
+					case speed > 0:
+						if (oldValue + speed <= limit) {
+							obj.style[direct] = oldValue + speed + "px";
+						} else {
+							clearInterval(obj.timer);
+							// 保证回调函数执行
+							callback && callback();
+						}
+						break;
+					case speed < 0:
+						if (oldValue + speed >= limit) {
+							obj.style[direct] = oldValue + speed + "px";
+						} else if (oldValue + speed < limit) {
+							// 防止过头
+							clearInterval(obj.timer);
+							obj.style[direct] = limit + "px";
+							callback && callback();
+						} else {
+							clearInterval(obj.timer);
+							callback && callback();
+						}
+						break;
+					default:
+						console.log("wrong number")
+						break;
+				}
+			}
+		}
+	</script>
+</head>
+<body>
+	<div id="LB">
+		<ul id="pic">
+			<li><img src="E:/Html/htmlFile/PDAmiku/miku_01.jpg"></li>
+			<li><img src="E:/Html/htmlFile/PDAmiku/miku_33.jpg"></li>
+			<li><img src="E:/Html/htmlFile/PDAmiku/miku_45.jpg"></li>
+			<li><img src="E:/Html/htmlFile/PDAmiku/miku_46.jpg"></li>
+			<li><img src="E:/Html/htmlFile/PDAmiku/miku_144.jpg"></li>
+			<li><img src="E:/Html/htmlFile/PDAmiku/miku_01.jpg"></li>
+		</ul>
+		<div id="btn">
+			<a href="javascript:;"></a>
+			<a href="javascript:;"></a>
+			<a href="javascript:;"></a>
+			<a href="javascript:;"></a>
+			<a href="javascript:;"></a>
+		</div>
+	</div>
+</body>
+</html>
